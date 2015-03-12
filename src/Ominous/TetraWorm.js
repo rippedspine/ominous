@@ -85,12 +85,6 @@ export default class TetraWorm extends THREE.Object3D {
         }
     }
 
-    setCamera( camera ) {
-
-        this._camera = camera;
-
-    }
-
     _bindDOMEvents() {
 
         document.addEventListener('mousemove', this._onMouseMove.bind(this));
