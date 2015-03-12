@@ -2,13 +2,9 @@
 
 import {
 
-    BACKGROUND_COLOR,
-    SCREEN_WIDTH,
-    SCREEN_HEIGHT
+    BACKGROUND_COLOR
 
 } from './Config';
-
-import fit from 'canvas-fit';
 
 import THREE from 'three';
 
@@ -19,12 +15,15 @@ export default class WebGLRenderer extends THREE.WebGLRenderer {
         super({ antialias: true });
 
         this.setClearColor( BACKGROUND_COLOR );
-        this.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+        this.setSize( window.innerWidth, window.innerHeight );
 
         this.shadowMapEnabled = true;
         this.shadowMapSoft = true;
 
-        fit( this.domElement );
+        var style = this.domElement.style;
+        style.position = 'fixed';
+        style.left = style.top = 0;
+        style.width = style.height = '100%';
 
         document.body.appendChild( this.domElement );
 
@@ -39,8 +38,6 @@ export default class WebGLRenderer extends THREE.WebGLRenderer {
     }
 
     handleResize() {
-
-        fit( this.domElement );
 
         this.setSize( window.innerWidth, window.innerHeight );
 

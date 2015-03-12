@@ -2,9 +2,6 @@
 
 import {
 
-    SCREEN_WIDTH,
-    SCREEN_HEIGHT,
-    ASPECT,
     VIEW_ANGLE,
     NEAR,
     FAR
@@ -25,7 +22,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
 
         options = (typeof options !== 'undefined') ? options : { position: {} };
 
-        super( VIEW_ANGLE, ASPECT, NEAR, FAR );
+        super( VIEW_ANGLE, window.innerWidth / window.innerHeight, NEAR, FAR );
 
         this._originY = options.position.y || 15;
 

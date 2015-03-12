@@ -5,6 +5,7 @@ function loadDOM( cb ) {
     document.addEventListener('touchstart', function(e) {
         e.preventDefault();
     });
+
     document.addEventListener( 'DOMContentLoaded', cb, false );
     window.addEventListener( 'load', cb, false );
 
