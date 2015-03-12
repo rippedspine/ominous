@@ -14,7 +14,6 @@ import WebGLRenderer from './WebGLRenderer';
 import World from './World';
 
 import Composer from './Composer';
-import OrbitControls from './OrbitControls';
 import PerspectiveCamera from './PerspectiveCamera';
 
 import Terrain from './Terrain';
@@ -35,8 +34,6 @@ export default class Ominous {
         this._world = new World();
 
         this._camera = new PerspectiveCamera();
-        this._cameraOverview = new PerspectiveCamera();
-        this._cameraActive = this._camera;
 
         this._renderer = new WebGLRenderer();
 
@@ -60,7 +57,7 @@ export default class Ominous {
 
             particleColor: this._tetrahedron.color,
             attractor: this._tetrahedron,
-            camera: this._cameraActive
+            camera: this._camera
 
         });
 
@@ -91,21 +88,9 @@ export default class Ominous {
 
             renderer: this._renderer,
             scene: this._world,
-            camera: this._cameraActive
+            camera: this._camera
 
         });
-
-        this._controls = new OrbitControls( this._cameraOverview );
-        this._controls.target.set( 0, 0, 0 );
-
-        this._controls.rotateSpeed = 1.0;
-        this._controls.zoomSpeed = 1.2;
-        this._controls.panSpeed = 0.8;
-
-        this._controls.noZoom = false;
-        this._controls.noPan = false;
-
-        this._count = 0;
 
         this.debug = false;
 
@@ -126,24 +111,18 @@ export default class Ominous {
 
         if ( key === 32 /* space */ ) {
 
-            this._cameraActive = (this._cameraActive === this._cameraOverview) ? this._camera : this._cameraOverview;
+            this._camera = (this._camera === this._cameraOverview) ? this._camera : this._cameraOverview;
 
-            this._composer.setCamera( this._cameraActive );
-            this._tetraWorm.setCamera( this._cameraActive );
+            this._composer.setCamera( this._camera );
+            this._tetraWorm.setCamera( this._camera );
 
         }
 
         if ( key === 68 /* D */ ) {
 
-            this._toggleDebug();
+            this.debug = !this.debug;
 
         }
-
-    }
-
-    _toggleDebug() {
-
-        this.debug = !this.debug;
 
     }
 
@@ -151,17 +130,17 @@ export default class Ominous {
 
         if ( this.debug ) {
 
-            this._cameraActive.far = 4000;
-            this._world.fog.far = this._cameraActive.far;
+            this._camera.far = 4000;
+            this._world.fog.far = this._camera.far;
 
         } else {
 
-            this._cameraActive.far = FAR;
-            this._world.fog.far = this._cameraActive.far;
+            this._camera.far = FAR;
+            this._world.fog.far = this._camera.far;
 
         }
 
-        this._cameraActive.updateProjectionMatrix();
+        this._camera.updateProjectionMatrix();
 
     }
 
@@ -169,14 +148,11 @@ export default class Ominous {
 
         requestAnimationFrame( this._animate.bind(this) );
 
-        this._controls.enabled = (this._cameraActive === this._cameraOverview);
-
-        this._controls.update();
         this._world.update();
         this._camera.update();
 
         this._tetraWorm.update();
-        this._tetrahedron.update( this._cameraActive );
+        this._tetrahedron.update( this._camera );
 
         this._lightPoint.update( this._tetrahedron.position );
 
@@ -194,7 +170,7 @@ export default class Ominous {
 
         this._onDebug();
 
-        this.debug ? this._renderer.render( this._world, this._cameraActive ) : this._composer.render( 0.1 );
+        this.debug ? this._renderer.render( this._world, this._camera ) : this._composer.render( 0.1 );
 
     }
 
