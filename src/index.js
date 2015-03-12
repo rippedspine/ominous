@@ -2,6 +2,9 @@ import Ominous from './Ominous/Ominous';
 
 function loadDOM( cb ) {
 
+    document.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+    });
     document.addEventListener( 'DOMContentLoaded', cb, false );
     window.addEventListener( 'load', cb, false );
 
@@ -34,13 +37,15 @@ function bootstrap() {
 
     }
 
-    document.getElementById('enter').addEventListener('click', function() {
-        if ( isClicked ) { return; }
+    if (document.getElementById('enter')) {
+        document.getElementById('enter').addEventListener('click', function() {
+            if ( isClicked ) { return; }
 
-        document.body.className = '';
+            document.body.className = '';
 
-        isClicked = true;
-    });
+            isClicked = true;
+        });
+    }
 
     isLoaded = true;
 

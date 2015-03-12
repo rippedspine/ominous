@@ -9,12 +9,15 @@ import { real } from '../Lib/random';
 import { cubic } from '../Lib/interpolation';
 
 var random = Math.random;
+var now = Date.now;
 
 export default class TetraWorm extends THREE.Object3D {
 
     constructor( options ) {
 
         this._interpolatePoints = getInterpolatePoints();
+
+        this._previousNow = Date.now();
 
         this._time = 0;
         this._timeDivider = options.timeDivider || 100;
@@ -58,7 +61,9 @@ export default class TetraWorm extends THREE.Object3D {
         this._particlesPosition.unshift( position );
         this._particlesPosition.pop();
 
-        this._time++;
+        var t = now();
+        this._time += (t - this._previousNow) / 30;
+        this._previousNow = t;
 
         for (var i = 0, l = len; i < l; i++) {
 
@@ -89,6 +94,7 @@ export default class TetraWorm extends THREE.Object3D {
     _bindDOMEvents() {
 
         document.addEventListener('mousemove', this._onMouseMove.bind(this));
+        document.addEventListener('touchmove', this._onTouchMove.bind(this));
 
     }
 
@@ -110,6 +116,14 @@ export default class TetraWorm extends THREE.Object3D {
 
         this._mousePosition = camera.position.clone().add( dir.multiplyScalar(distance) );
         this._mousePositionChanged = true;
+
+    }
+
+    _onTouchMove( event ) {
+
+        if ( event.touches && event.touches.length > 0 ) {
+            this._onMouseMove( event.touches[0] );
+        }
 
     }
 
@@ -139,7 +153,7 @@ export default class TetraWorm extends THREE.Object3D {
                     mousePos.z / multiplier
                 ));
 
-            } else if (this._attractor ) {
+            } else if ( this._attractor ) {
 
                 ips.push(new THREE.Vector3(
                     ((attractPos.x) / multiplier) + real( -divider, divider ),

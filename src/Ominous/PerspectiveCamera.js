@@ -52,6 +52,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
 
         window.addEventListener( 'resize', this._handleResize.bind(this) );
         document.addEventListener( 'mousemove', this._onDocumentMouseMove.bind(this), false );
+        document.addEventListener( 'touchmove', this._onDocumentTouchMove.bind(this), false );
 
     }
 
@@ -91,6 +92,13 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
     }
 
     _onDocumentMouseMove( event ) {
+
+        this._mouseY = -( event.clientY - window.innerHeight );
+        this._mousePositionChanged = true;
+
+    }
+
+    _onDocumentTouchMove( event ) {
 
         this._mouseY = -( event.clientY - window.innerHeight );
         this._mousePositionChanged = true;

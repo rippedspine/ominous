@@ -14,17 +14,17 @@ export default class Tetrahedron extends THREE.Mesh {
         var geometry = new THREE.TetrahedronGeometry( options.size );
         var material = new THREE.MeshLambertMaterial( options );
 
-        geometry.applyMatrix( 
-            new THREE.Matrix4().makeRotationAxis( 
-                new THREE.Vector3( 1, 0, 1 ).normalize(), 
-                Math.atan( Math.sqrt(2) ) 
-            ) 
+        geometry.applyMatrix(
+            new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3( 1, 0, 1 ).normalize(),
+                Math.atan( Math.sqrt(2) )
+            )
         );
 
         material.shading = THREE.FlatShading;
 
         super( geometry, material );
-        
+
         this.body = new Body( 70 );
 
         this.glow = new Glow({
@@ -46,6 +46,7 @@ export default class Tetrahedron extends THREE.Mesh {
     bindEvents() {
 
         window.addEventListener( 'mousemove', this.handleMouseMove.bind(this) );
+        window.addEventListener( 'touchmove', this.handleTouchMove.bind(this) );
 
     }
 
@@ -56,6 +57,13 @@ export default class Tetrahedron extends THREE.Mesh {
 
     }
 
+    handleTouchMove( event ) {
+
+        if ( event.touches && event.touches.length > 0 ) {
+            this.handleMouseMove( event.touches[0] );
+        }
+
+    }
 
     update( camera ) {
 
@@ -65,7 +73,7 @@ export default class Tetrahedron extends THREE.Mesh {
         body.update( this );
         this.glow.update( camera, body );
 
-        raycaster.setFromCamera( this.mouse, camera );   
+        raycaster.setFromCamera( this.mouse, camera );
 
         if ( raycaster.intersectObject( this ).length ) {
 
