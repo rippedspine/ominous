@@ -1,0 +1,44 @@
+{
+  "name": "ominous",
+  "version": "1.0.0",
+  "description": "WebGL experiment using ThreeJS",
+  "author": "Gabriella Jonsson <gabriella@schimpanz.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:rippedspine/ominous.git"
+  },
+  "keywords": [
+    "WebGL",
+    "Threejs",
+    "Cannon",
+    "Browserify",
+    "Beefy",
+    "Glslify",
+    "Babel"
+  ],
+  "browserify": {
+    "transform": [
+      "glslify",
+      "babelify"
+    ]
+  },
+  "scripts": {
+    "postinstall": "npm run server",
+    "prebuild": "rm -rf build; mkdir -p build; cp ./src/index.html ./build;",
+    "build": "node node_modules/browserify/bin/cmd.js -g uglifyify ./src/index.js > ./build/ominous.js",
+    "server": "node node_modules/beefy/bin/beefy ./src/index.js"
+  },
+  "devDependencies": {
+    "alea": "0.0.9",
+    "babelify": "^5.0.3",
+    "beefy": "^2.1.3",
+    "browserify": "^9.0.3",
+    "cannon": "^0.6.1",
+    "canvas-fit": "^1.2.0",
+    "glslify": "^1.6.0",
+    "simplex-noise": "^2.1.1",
+    "three": "^0.70.0",
+    "uglifyify": "^3.0.1"
+  }
+}

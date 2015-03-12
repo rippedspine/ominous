@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>O M I N O U S</title>
+
+    <style type="text/css">
+        * {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #fff;
+        }
+
+        body {
+            background: #000a27;
+            text-align: center;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        canvas {
+            -webkit-transition: 200ms all ease-in-out;
+            -moz-transition: 200ms all ease-in-out;
+            transition: 200ms all ease-in-out;
+        }
+
+        .loading canvas {
+            opacity: 0;
+        }
+
+        .loaded canvas {
+          -webkit-filter: blur(30px);
+          -moz-filter: blur(30px);
+          filter: blur(30px);
+          opacity: 0.5;
+        }
+
+        .loading .logo,
+        .loaded .logo {
+            opacity: 0;
+        }
+
+        .loaded .splash,
+        .loading .splash {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .splash {
+            -webkit-transition: 100ms all ease-in-out;
+            -moz-transition: 100ms all ease-in-out;
+            transition: 100ms all ease-in-out;
+            position: absolute;
+            top: 52%;
+            width: 100%;
+            transform: translateY(-50%);
+        }
+
+        .splash a {
+            display: inline-block;
+            width: 10em;
+        }
+
+        h1 {
+            font-weight: 100;
+            font-size: 6em;
+            margin: 0.2em 0 0.5em;
+        }
+
+        button {
+            padding: .8em 2em;
+            font-size: 1em;
+            font-weight: normal;
+            background: transparent;
+            border: 1px solid;
+            cursor: pointer;
+        }
+
+        button:focus,
+        button:active {
+            outline: 0;
+        }
+
+        .logo {
+            display: block;
+            position: absolute;
+            z-index: 1;
+            bottom: 1.5em;
+            right: 1.5em;
+            width: 10em;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+    </style>
+</head>
+<body class="loading">
+
+    <script type="text/javascript" src="./ominous.js"></script>
+
+    <div class="splash">
+        <a href="http://schimpanz.com">
+            <img src="http://schimpanz.com/wp-content/themes/schimpanz/images/schimp-logo-retina.png" alt="Schimpanz">
+        </a>
+        <h1>O M I N O U S</h1>
+        <button id="enter">e n t e r</button>
+    </div>
+
+    <a class="logo" href="http://schimpanz.com">
+        <img src="http://schimpanz.com/wp-content/themes/schimpanz/images/schimp-logo-retina.png" alt="Schimpanz">
+    </a>
+
+</body>
+</html>

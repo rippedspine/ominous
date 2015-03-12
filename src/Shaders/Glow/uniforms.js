@@ -1,0 +1,13 @@
+'use strict';
+
+var THREE = require('three');
+
+module.exports = { 
+
+    'c': { type: 'f', value: 1.0 },
+    'p': { type: 'f', value: 1.4 },
+    
+    glowColor: { type: 'c', value: null },
+    viewVector: { type: 'v3', value: null }
+
+};
