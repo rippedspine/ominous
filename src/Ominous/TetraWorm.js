@@ -17,7 +17,7 @@ export default class TetraWorm extends THREE.Object3D {
 
         this._interpolatePoints = getInterpolatePoints();
 
-        this._previousNow = Date.now();
+        this._previousNow = now();
 
         this._time = 0;
         this._timeDivider = options.timeDivider || 100;

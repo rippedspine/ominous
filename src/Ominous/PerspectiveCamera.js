@@ -40,6 +40,8 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
             this._originY
         ];
 
+        this._previousNow = DateNow();
+
         this._time = 0;
         this._timeDivider = options.timeDivider || 100;
         this._multiplier = options.multiplier || 50;
@@ -100,8 +102,9 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
 
     _onDocumentTouchMove( event ) {
 
-        this._mouseY = -( event.clientY - window.innerHeight );
-        this._mousePositionChanged = true;
+        if ( event.touches && event.touches.length > 0 ) {
+            this._onDocumentMouseMove( event.touches[0] );
+        }
 
     }
 
@@ -113,7 +116,9 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
         this.position.y = this._getPositionY();
         this.position.z = sin( timer ) * 100;
 
-        this._time++;
+        var t = DateNow();
+        this._time += (t - this._previousNow) / 30;
+        this._previousNow = t;
 
     }
 
