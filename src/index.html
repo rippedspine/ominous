@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>O M I N O U S</title>
@@ -15,6 +13,7 @@
             background: #000a27;
             text-align: center;
             font-size: 16px;
+
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -33,6 +32,7 @@
           -webkit-filter: blur(30px);
           -moz-filter: blur(30px);
           filter: blur(30px);
+
           opacity: 0.5;
         }
 
@@ -47,13 +47,20 @@
             z-index: 1;
         }
 
-        .splash {
+        .splash,
+        .logo {
             -webkit-transition: 100ms all ease-in-out;
             -moz-transition: 100ms all ease-in-out;
             transition: 100ms all ease-in-out;
+        }
+
+        .splash {
             position: absolute;
             top: 52%;
             width: 100%;
+
+            -webkit-transform: translateY(-50%);
+            -moz-transform: translateY(-50%);
             transform: translateY(-50%);
         }
 
@@ -74,6 +81,7 @@
             font-weight: normal;
             background: transparent;
             border: 1px solid;
+            border-radius: 2px;
             cursor: pointer;
         }
 
@@ -95,9 +103,30 @@
             max-width: 100%;
         }
 
+        @media only screen
+            and (min-device-width: 320px)
+            and (max-device-width: 667px)
+            and (-webkit-device-pixel-ratio: 2) {
+
+            .splash a { width: 6em; }
+            h1 { font-size: 2.7em; margin-bottom: .3em; }
+            button { font-size: .6em; }
+
+            .logo {
+                right: 50%;
+                -webkit-transform: translateX(50%);
+                -moz-transform: translateX(50%);
+                transform: translateX(50%);
+
+                width: 6em;
+            }
+
+        }
+
+
     </style>
-</head>
-<body class="loading">
+<style type="text/css"></style></head>
+<body class="loaded">
 
     <script type="text/javascript" src="./ominous.js"></script>
 

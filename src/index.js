@@ -11,6 +11,16 @@ function loadDOM( cb ) {
 
 };
 
+function handleClick( event ) {
+
+    if ( isClicked ) { return; }
+
+    document.body.className = '';
+
+    isClicked = true;
+
+}
+
 function bootstrap() {
 
     if ( isLoaded ) { return; }
@@ -38,14 +48,11 @@ function bootstrap() {
 
     }
 
-    if (document.getElementById('enter')) {
-        document.getElementById('enter').addEventListener('click', function() {
-            if ( isClicked ) { return; }
+    var enterBtn = document.getElementById('enter');
 
-            document.body.className = '';
-
-            isClicked = true;
-        });
+    if ( enterBtn ) {
+        enterBtn.addEventListener( 'touchstart', handleClick );
+        enterBtn.addEventListener( 'click', handleClick );
     }
 
     isLoaded = true;
