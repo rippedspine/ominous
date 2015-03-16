@@ -1,8 +1,11 @@
 'use strict';
 
-import CANNON from 'cannon';
 import THREE from 'three';
 import Glow from './Glow';
+
+var CANNON = {};
+CANNON.Body = require('cannon/src/objects/Body');
+CANNON.Vec3 = require('cannon/src/math/Vec3');
 
 var DateNow = Date.now;
 var cos = Math.cos;
@@ -25,55 +28,55 @@ export default class Tetrahedron extends THREE.Mesh {
 
         super( geometry, material );
 
-        this.body = new Body( 70 );
+        this._body = new Body( 70 );
 
         this.glow = new Glow({
 
             color: options.color,
-            position: this.body.position,
+            position: this._body.position,
             viewVector: options.viewVector,
             geometry: geometry
 
         });
 
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
+        this._raycaster = new THREE.Raycaster();
+        this._mouse = new THREE.Vector2();
 
-        this.bindEvents();
-
-    }
-
-    bindEvents() {
-
-        window.addEventListener( 'mousemove', this.handleMouseMove.bind(this) );
-        window.addEventListener( 'touchmove', this.handleTouchMove.bind(this) );
+        this._bindEvents();
 
     }
 
-    handleMouseMove( event ) {
+    _bindEvents() {
 
-        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        window.addEventListener( 'mousemove', this._handleMouseMove.bind(this) );
+        window.addEventListener( 'touchmove', this._handleTouchMove.bind(this) );
 
     }
 
-    handleTouchMove( event ) {
+    _handleMouseMove( event ) {
+
+        this._mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this._mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    }
+
+    _handleTouchMove( event ) {
 
         if ( event.touches && event.touches.length > 0 ) {
-            this.handleMouseMove( event.touches[0] );
+            this._handleMouseMove( event.touches[0] );
         }
 
     }
 
     update( camera ) {
 
-        var raycaster = this.raycaster;
-        var body = this.body;
+        var raycaster = this._raycaster;
+        var body = this._body;
 
         body.update( this );
         this.glow.update( camera, body );
 
-        raycaster.setFromCamera( this.mouse, camera );
+        raycaster.setFromCamera( this._mouse, camera );
 
         if ( raycaster.intersectObject( this ).length ) {
 

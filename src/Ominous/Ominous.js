@@ -8,7 +8,7 @@ import {
     BACKGROUND_COLOR,
     GROUND_COLOR
 
-} from './Config';
+} from './Constants';
 
 import WebGLRenderer from './WebGLRenderer';
 import World from './World';
@@ -32,9 +32,7 @@ export default class Ominous {
     constructor() {
 
         this._world = new World();
-
         this._camera = new PerspectiveCamera();
-
         this._renderer = new WebGLRenderer();
 
         this._terrain = new Terrain({

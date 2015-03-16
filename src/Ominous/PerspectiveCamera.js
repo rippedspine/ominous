@@ -6,9 +6,11 @@ import {
     NEAR,
     FAR
 
-} from './Config';
+} from './Constants';
 
 import THREE from 'three';
+
+import doppler from '../Doppler';
 
 import { cosine } from '../Lib/interpolation';
 
@@ -40,10 +42,27 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
         this._previousNow = DateNow();
 
         this._time = 0;
-        this._timeDivider = options.timeDivider || 100;
+        this._timeDivider = options.timeDivider || 30;
         this._multiplier = options.multiplier || 50;
 
         this._bindDOMEvents();
+        this._bindDoppler();
+
+    }
+
+    _bindDoppler() {
+
+        this._dopplerChanged = false;
+
+        doppler.init(function(bandwidth) {
+            var threshold = 4;
+
+            if (bandwidth.left > threshold || bandwidth.right > threshold) {
+                this._diff = Math.min(Math.max(bandwidth.left - bandwidth.right, 2), 20);
+                this._dopplerChanged = true;
+            }
+
+        }.bind(this));
 
     }
 
@@ -55,13 +74,42 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
 
     }
 
+    _getDopplerPositionY() {
+
+        var t = this._time / this._timeDivider;
+        var mouseY = this._mouseY;
+
+        var posY = this._diff * 8;
+        var multiplier = this._multiplier;
+        var ips = this._interpolatePoints;
+        var divider = this._divider * 100;
+
+        if ( t > 1 ) {
+
+            this._time %= this._timeDivider;
+            t = this._time / this._timeDivider;
+
+            ips.shift();
+
+            if ( this._dopplerChanged ) {
+                ips.push( posY );
+            } else {
+                ips.push( ips[0] );
+            }
+
+            this._dopplerChanged = false;
+
+        }
+
+        return cosine( ips[0], ips[1], t );
+    }
+
     _getPositionY() {
 
         var t = this._time / this._timeDivider;
         var mouseY = this._mouseY;
 
         var posY = this.position.y;
-        var originY = this._originY;
         var multiplier = this._multiplier;
         var ips = this._interpolatePoints;
         var divider = this._divider * 100;
@@ -74,13 +122,9 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
             ips.shift();
 
             if ( this._mousePositionChanged ) {
-
                 ips.push( mouseY / multiplier );
-
             } else {
-
-                ips.push( originY );
-
+               ips.push( ips[0] );
             }
 
             this._mousePositionChanged = false;
@@ -110,7 +154,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
         var timer = DateNow() * 0.0002;
 
         this.position.x = cos( timer ) * 100;
-        this.position.y = this._getPositionY();
+        this.position.y = this._getDopplerPositionY();
         this.position.z = sin( timer ) * 100;
 
         var t = DateNow();

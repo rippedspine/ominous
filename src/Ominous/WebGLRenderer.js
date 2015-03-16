@@ -4,7 +4,7 @@ import {
 
     BACKGROUND_COLOR
 
-} from './Config';
+} from './Constants';
 
 import THREE from 'three';
 
@@ -27,17 +27,17 @@ export default class WebGLRenderer extends THREE.WebGLRenderer {
 
         document.body.appendChild( this.domElement );
 
-        this.bindDOMEvents();
+        this._bindDOMEvents();
 
     }
 
-    bindDOMEvents() {
+    _bindDOMEvents() {
 
-        window.addEventListener( 'resize', this.handleResize.bind(this) );
+        window.addEventListener( 'resize', this._handleResize.bind(this) );
 
     }
 
-    handleResize() {
+    _handleResize() {
 
         this.setSize( window.innerWidth, window.innerHeight );
 

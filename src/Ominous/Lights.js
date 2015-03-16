@@ -1,12 +1,12 @@
 'use strict';
 
-import { 
+import {
 
     FAR,
     BACKGROUND_COLOR,
     GROUND_COLOR
 
-} from './Config';
+} from './Constants';
 
 import THREE from 'three';
 
@@ -23,7 +23,7 @@ export class DirectionalLight extends THREE.DirectionalLight {
         this.castShadow = true;
 
         this.shadowMapWidth = 1024;
-        this.shadowMapHeight = 1024;    
+        this.shadowMapHeight = 1024;
 
         this.shadowCameraLeft = -d;
         this.shadowCameraRight = d;
@@ -41,8 +41,8 @@ export class PointLight extends THREE.PointLight {
 
     constructor( options ) {
 
-        if ( typeof options.position === 'undefined' ) { 
-            options.position = { x: 0, y: 0, z: 0 }; 
+        if ( typeof options.position === 'undefined' ) {
+            options.position = { x: 0, y: 0, z: 0 };
         }
 
         super( options.color, options.intensity );
