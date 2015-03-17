@@ -8,10 +8,10 @@ import {
 
 } from './Constants';
 
-// import CANNON from 'cannon';
 import THREE from 'three';
 
 var CANNON = {};
+
 CANNON.World = require('cannon/src/world/World');
 CANNON.NaiveBroadphase = require('cannon/src/collision/NaiveBroadphase');
 
@@ -40,11 +40,6 @@ export default class World extends THREE.Scene {
 
         if ( typeof object.glow !== 'undefined' ) {
             super.add( object.glow );
-        }
-
-        if ( typeof object.spring !== 'undefined' ) {
-            this.physics.add( object.spring.point );
-            this.physics.springs.push( object.spring );
         }
 
         super.add( object );

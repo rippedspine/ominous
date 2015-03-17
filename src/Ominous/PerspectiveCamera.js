@@ -46,7 +46,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
         this._multiplier = options.multiplier || 50;
 
         this._bindDOMEvents();
-        this._bindDoppler();
+        // this._bindDoppler();
 
     }
 
@@ -107,7 +107,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
     _getPositionY() {
 
         var t = this._time / this._timeDivider;
-        var mouseY = this._mouseY;
+        var mouseY = this._mouseY + 100;
 
         var posY = this.position.y;
         var multiplier = this._multiplier;
@@ -122,7 +122,9 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
             ips.shift();
 
             if ( this._mousePositionChanged ) {
+
                 ips.push( mouseY / multiplier );
+
             } else {
                ips.push( ips[0] );
             }
@@ -154,7 +156,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
         var timer = DateNow() * 0.0002;
 
         this.position.x = cos( timer ) * 100;
-        this.position.y = this._getDopplerPositionY();
+        this.position.y = this._getPositionY();
         this.position.z = sin( timer ) * 100;
 
         var t = DateNow();

@@ -10,6 +10,7 @@ import { cubic } from '../Lib/interpolation';
 
 var random = Math.random;
 var now = Date.now;
+var clamp = THREE.Math.clamp;
 
 export default class TetraWorm extends THREE.Object3D {
 
@@ -21,7 +22,7 @@ export default class TetraWorm extends THREE.Object3D {
         this._timeDivider = options.timeDivider || 50;
         this._multiplier = options.multiplier || 200;
 
-        this._divider = 1 / this._multiplier;
+        this._divider = 1.5;
 
         this._particles = [];
         this._particlesPosition = [];
@@ -37,15 +38,19 @@ export default class TetraWorm extends THREE.Object3D {
 
         this._attractor = options.attractor || false;
 
+        this.castShadow = true;
+
         super();
 
         this._interpolatePoints = this._getStartInterpolatePoints();
-        this._generateParticles( options.numParticles || 125 );
+        this._generateParticles( options.numParticles || 256 );
         this._bindDOMEvents();
 
     }
 
     update() {
+
+        var t = now();
 
         var position = this._getPosition();
 
@@ -56,11 +61,12 @@ export default class TetraWorm extends THREE.Object3D {
 
         var len = this._particles.length;
 
+        var mouseLength = position.clone().length(this._mousePosition);
+
         this._particlesPosition.unshift( position );
         this._particlesPosition.pop();
 
-        var t = now();
-        this._time += (t - this._previousNow) / 30;
+        this._time += (t - this._previousNow) / clamp(-(30 - mouseLength), 15, 60);
         this._previousNow = t;
 
         for (var i = 0, l = len; i < l; i++) {
@@ -83,81 +89,13 @@ export default class TetraWorm extends THREE.Object3D {
         }
     }
 
-    _getStartInterpolatePoints() {
-
-        var startVector;
-
-        if ( this._attractor ) {
-
-            var position = this._attractor.body.position;
-
-            startVector = new THREE.Vector3(
-                position.x,
-                position.y * 2,
-                50
-            );
-
-        } else {
-
-            startVector = new THREE.Vector3(
-                (random() * 2) - 1 * this._multiplier,
-                (random() * 2) - 1 * this._multiplier,
-                (random() * 2) - 1 * this._multiplier
-            );
-
-        }
-
-        return [
-            startVector,
-            startVector,
-            startVector,
-            startVector
-        ];
-
-    }
-
-    _bindDOMEvents() {
-
-        document.addEventListener('mousemove', this._onMouseMove.bind(this));
-        document.addEventListener('touchmove', this._onTouchMove.bind(this));
-
-    }
-
-    _onMouseMove( event ) {
-
-        var camera = this._camera;
-        var vector = new THREE.Vector3();
-
-        vector.set(
-             (event.clientX / window.innerWidth)  * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1,
-            0.5
-        );
-
-        vector.unproject( camera );
-
-        var dir = vector.sub( camera.position ).normalize();
-        var distance = -camera.position.z / dir.z;
-
-        this._mousePosition = camera.position.clone().add( dir.multiplyScalar(distance) );
-        this._mousePositionChanged = true;
-
-    }
-
-    _onTouchMove( event ) {
-
-        if ( event.touches && event.touches.length > 0 ) {
-            this._onMouseMove( event.touches[0] );
-        }
-
-    }
 
     _getPosition() {
 
         var t = this._time / this._timeDivider;
 
         var mousePos = this._mousePosition;
-        var attractPos = this._attractor.position;
+        var attractPos = this._attractor.body.position;
 
         var multiplier = this._multiplier;
         var ips = this._interpolatePoints;
@@ -200,31 +138,47 @@ export default class TetraWorm extends THREE.Object3D {
 
         }
 
-        var x = cubic(
-            ips[0].x,
-            ips[1].x,
-            ips[2].x,
-            ips[3].x,
-            t
-        );
-
-        var y = cubic(
-            ips[0].y,
-            ips[1].y,
-            ips[2].y,
-            ips[3].y,
-            t
-        );
-
-        var z = cubic(
-            ips[0].z,
-            ips[1].z,
-            ips[2].z,
-            ips[3].z,
-            t
-        );
+        var x = cubic( ips[0].x, ips[1].x, ips[2].x, ips[3].x, t );
+        var y = cubic( ips[0].y, ips[1].y, ips[2].y, ips[3].y, t );
+        var z = cubic( ips[0].z, ips[1].z, ips[2].z, ips[3].z, t );
 
         return new THREE.Vector3(x, y, z);
+
+    }
+
+    _bindDOMEvents() {
+
+        document.addEventListener('mousemove', this._onMouseMove.bind(this));
+        document.addEventListener('touchmove', this._onTouchMove.bind(this));
+
+    }
+
+    _onMouseMove( event ) {
+
+        var camera = this._camera;
+        var vector = new THREE.Vector3();
+
+        vector.set(
+             (event.clientX / window.innerWidth)  * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1,
+            0.5
+        );
+
+        vector.unproject( camera );
+
+        var dir = vector.sub( camera.position ).normalize();
+        var distance = -camera.position.z / dir.z;
+
+        this._mousePosition = camera.position.clone().add( dir.multiplyScalar(distance) );
+        this._mousePositionChanged = true;
+
+    }
+
+    _onTouchMove( event ) {
+
+        if ( event.touches && event.touches.length > 0 ) {
+            this._onMouseMove( event.touches[0] );
+        }
 
     }
 
@@ -272,6 +226,40 @@ export default class TetraWorm extends THREE.Object3D {
 
     }
 
+    _getStartInterpolatePoints() {
+
+        var startVector;
+
+        if ( this._attractor ) {
+
+            var position = this._attractor.body.position;
+
+            startVector = new THREE.Vector3(
+                position.x,
+                position.y * 1.5,
+                50
+            );
+
+        } else {
+
+            startVector = new THREE.Vector3(
+                (random() * 2) - 1 * this._multiplier,
+                (random() * 2) - 1 * this._multiplier,
+                (random() * 2) - 1 * this._multiplier
+            );
+
+        }
+
+        return [
+            startVector,
+            startVector,
+            startVector,
+            startVector
+        ];
+
+    }
+
+
 }
 
 class TetraWormParticle extends THREE.Mesh {
@@ -288,7 +276,6 @@ class TetraWormParticle extends THREE.Mesh {
         super( geometry, material );
 
         this.castShadow = true;
-        this.recieveShadow = true;
 
     }
 

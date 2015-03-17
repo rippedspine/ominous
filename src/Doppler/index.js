@@ -25,6 +25,7 @@ function doppler() {
     // This is just preliminary, we'll actually do a quick scan
     // (as suggested in the paper) to optimize this.
     var freq = 20000;
+    // var freq = 440;
 
     // See paper for this particular choice of frequencies
     var relevantFreqWindow = 33;
