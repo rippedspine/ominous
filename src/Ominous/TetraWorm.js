@@ -15,13 +15,11 @@ export default class TetraWorm extends THREE.Object3D {
 
     constructor( options ) {
 
-        this._interpolatePoints = getInterpolatePoints();
-
         this._previousNow = now();
 
         this._time = 0;
-        this._timeDivider = options.timeDivider || 100;
-        this._multiplier = options.multiplier || 100;
+        this._timeDivider = options.timeDivider || 50;
+        this._multiplier = options.multiplier || 200;
 
         this._divider = 1 / this._multiplier;
 
@@ -41,7 +39,8 @@ export default class TetraWorm extends THREE.Object3D {
 
         super();
 
-        this._generateParticles( options.numParticles || 256 );
+        this._interpolatePoints = this._getStartInterpolatePoints();
+        this._generateParticles( options.numParticles || 125 );
         this._bindDOMEvents();
 
     }
@@ -54,7 +53,6 @@ export default class TetraWorm extends THREE.Object3D {
         var positions = this._particlesPosition;
         var rotations = this._particlesRotation;
         var offsets = this._particlesOffset;
-        var multiplier = this._multiplier;
 
         var len = this._particles.length;
 
@@ -72,9 +70,9 @@ export default class TetraWorm extends THREE.Object3D {
             var rot = rotations[i];
             var offset = offsets[i];
 
-            p.position.x = (pos.x * multiplier) + offset.x;
-            p.position.y = (pos.y * multiplier) + offset.y;
-            p.position.z = (pos.z * multiplier) + offset.z;
+            p.position.x = pos.x + offset.x;
+            p.position.y = pos.y + offset.y;
+            p.position.z = pos.z + offset.z;
 
             p.rotation.x += rot.x;
             p.rotation.y += rot.y;
@@ -83,6 +81,39 @@ export default class TetraWorm extends THREE.Object3D {
             p.scale.x = p.scale.y = p.scale.z = (l - i) / l;
 
         }
+    }
+
+    _getStartInterpolatePoints() {
+
+        var startVector;
+
+        if ( this._attractor ) {
+
+            var position = this._attractor.body.position;
+
+            startVector = new THREE.Vector3(
+                position.x,
+                position.y * 2,
+                50
+            );
+
+        } else {
+
+            startVector = new THREE.Vector3(
+                (random() * 2) - 1 * this._multiplier,
+                (random() * 2) - 1 * this._multiplier,
+                (random() * 2) - 1 * this._multiplier
+            );
+
+        }
+
+        return [
+            startVector,
+            startVector,
+            startVector,
+            startVector
+        ];
+
     }
 
     _bindDOMEvents() {
@@ -142,25 +173,25 @@ export default class TetraWorm extends THREE.Object3D {
             if ( this._mousePositionChanged ) {
 
                 ips.push(new THREE.Vector3(
-                    mousePos.x / multiplier,
-                    mousePos.y / multiplier,
-                    mousePos.z / multiplier
+                    mousePos.x,
+                    mousePos.y,
+                    mousePos.z
                 ));
 
             } else if ( this._attractor ) {
 
                 ips.push(new THREE.Vector3(
-                    ((attractPos.x) / multiplier) + real( -divider, divider ),
-                    ((attractPos.y - 10) / multiplier) + real( -divider, divider ),
-                    ((attractPos.z) / multiplier) + real( -divider, divider )
+                    attractPos.x + real( -divider, divider ),
+                    attractPos.y + real( -divider, divider ),
+                    attractPos.z + real( -divider, divider )
                 ));
 
             } else {
 
                 ips.push(new THREE.Vector3(
-                    (random() * 2) - 1,
-                    (random() * 2) + 1,
-                    (random() * 2) - 1
+                    ((random() * 2) - 1) * multiplier,
+                    ((random() * 2) + 1) * multiplier,
+                    ((random() * 2) - 1) * multiplier
                 ));
 
             }
@@ -260,25 +291,5 @@ class TetraWormParticle extends THREE.Mesh {
         this.recieveShadow = true;
 
     }
-
-}
-
-function getInterpolatePoints() {
-
-    var a = new THREE.Vector3( 0, 0, 0 );
-
-    return [
-        a, a,
-        new THREE.Vector3(
-            (random() * 2) - 1,
-            (random() * 2) - 1,
-            (random() * 2) - 1
-        ),
-        new THREE.Vector3(
-            (random() * 2) - 1,
-            (random() * 2) - 1,
-            (random() * 2) - 1
-        )
-    ];
 
 }
