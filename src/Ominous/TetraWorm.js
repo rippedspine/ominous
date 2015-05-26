@@ -1,16 +1,16 @@
-/*
- * @author https://github.com/tditlu
- */
-
 'use strict';
 
 import THREE from 'three';
 import { real } from '../Lib/random';
 import { cubic } from '../Lib/interpolation';
 
-var random = Math.random;
-var now = Date.now;
+import { pointsWorm } from './data/play';
+
 var clamp = THREE.Math.clamp;
+var random = Math.random;
+var sin = Math.sin;
+var cos = Math.cos;
+var now = Date.now;
 
 export default class TetraWorm extends THREE.Object3D {
 
@@ -38,7 +38,8 @@ export default class TetraWorm extends THREE.Object3D {
 
         this._attractor = options.attractor || false;
 
-        this.castShadow = true;
+        this._play = options.play || false;
+        this._counter = -1;
 
         super();
 
@@ -58,7 +59,6 @@ export default class TetraWorm extends THREE.Object3D {
         var positions = this._particlesPosition;
         var rotations = this._particlesRotation;
         var offsets = this._particlesOffset;
-
         var len = this._particles.length;
 
         var mouseLength = position.clone().length(this._mousePosition);
@@ -69,12 +69,14 @@ export default class TetraWorm extends THREE.Object3D {
         this._time += (t - this._previousNow) / clamp(-(30 - mouseLength), 15, 60);
         this._previousNow = t;
 
+        var p, pos, rot, offset;
+
         for (var i = 0, l = len; i < l; i++) {
 
-            var p = particles[i];
-            var pos = positions[i];
-            var rot = rotations[i];
-            var offset = offsets[i];
+            p = particles[i];
+            pos = positions[i];
+            rot = rotations[i];
+            offset = offsets[i];
 
             p.position.x = pos.x + offset.x;
             p.position.y = pos.y + offset.y;
@@ -84,8 +86,6 @@ export default class TetraWorm extends THREE.Object3D {
             p.rotation.y += rot.y;
             p.rotation.z += rot.z;
 
-            p.scale.x = p.scale.y = p.scale.z = (l - i) / l;
-
         }
     }
 
@@ -93,13 +93,8 @@ export default class TetraWorm extends THREE.Object3D {
     _getPosition() {
 
         var t = this._time / this._timeDivider;
-
-        var mousePos = this._mousePosition;
-        var attractPos = this._attractor.body.position;
-
-        var multiplier = this._multiplier;
         var ips = this._interpolatePoints;
-        var divider = this._divider * 30;
+        var time = now() * 0.0005;
 
         if ( t > 1 ) {
 
@@ -108,29 +103,36 @@ export default class TetraWorm extends THREE.Object3D {
 
             ips.shift();
 
-            if ( this._mousePositionChanged ) {
+            if ( this._play ) {
 
-                ips.push(new THREE.Vector3(
-                    mousePos.x,
-                    mousePos.y,
-                    mousePos.z
-                ));
+                if (this._counter++ >= pointsWorm.length - 1) {
+                    this._counter = 0;
+                }
 
-            } else if ( this._attractor ) {
-
-                ips.push(new THREE.Vector3(
-                    attractPos.x + real( -divider, divider ),
-                    attractPos.y + real( -divider, divider ),
-                    attractPos.z + real( -divider, divider )
-                ));
+                ips.push(pointsWorm[this._counter]);
 
             } else {
 
-                ips.push(new THREE.Vector3(
-                    ((random() * 2) - 1) * multiplier,
-                    ((random() * 2) + 1) * multiplier,
-                    ((random() * 2) - 1) * multiplier
-                ));
+                var mousePos = this._mousePosition;
+                var attractOriginY = this._attractOrigin.y;
+
+                if ( this._mousePositionChanged ) {
+
+                    ips.push({
+                        x: mousePos.x,
+                        y: mousePos.y,
+                        z: mousePos.z
+                    });
+
+                } else if ( this._attractor ) {
+
+                    ips.push({
+                        x: sin( time * t * .7 ) * 50,
+                        y: (cos( time * t * .5 ) * 40) + attractOriginY,
+                        z: cos( time * t * .3 ) * 50
+                    });
+
+                }
 
             }
 
@@ -186,11 +188,21 @@ export default class TetraWorm extends THREE.Object3D {
 
         var particleColor = this._particleColor;
         var particleSize = this._particleSize;
+        var particle, scale;
 
-        for (var i = 0; i < numParticles; i++) {
-            this._addParticle(
-                new TetraWormParticle( particleColor, particleSize )
+        for (var i = 0, l = numParticles; i < l; i++) {
+
+            scale = (l - i) / l;
+
+            particle = new TetraWormParticle(
+
+                particleColor,
+                particleSize * (scale)
+
             );
+
+            this._addParticle( particle );
+
         }
 
     }
@@ -199,28 +211,25 @@ export default class TetraWorm extends THREE.Object3D {
 
         var ps = this._particleSize * 2;
 
-        var offset = new THREE.Vector3(
-            ((random() * 2) - 1) * ps,
-            ((random() * 2) - 1) * ps,
-            ((random() * 2) - 1) * ps
-        );
-
-        var position = new THREE.Vector3(
-            0,
-            0,
-            this._camera.position.z * 2
-        );
-
-        var rotation = new THREE.Vector3(
-            random() * 0.025,
-            random() * 0.025,
-            random() * 0.025
-        );
-
         this._particles.push( particle );
-        this._particlesOffset.push( offset );
-        this._particlesPosition.push( position );
-        this._particlesRotation.push( rotation );
+
+        this._particlesOffset.push({
+            x: real(-ps, ps),
+            y: real(-ps, ps),
+            z: real(-ps, ps)
+        });
+
+        this._particlesPosition.push({
+            x: 0,
+            y: 0,
+            z: this._camera.position.z * 2
+        });
+
+        this._particlesRotation.push({
+            x: random() * 0.025,
+            y: random() * 0.025,
+            z: random() * 0.025
+        });
 
         this.add( particle );
 
@@ -228,34 +237,44 @@ export default class TetraWorm extends THREE.Object3D {
 
     _getStartInterpolatePoints() {
 
-        var startVector;
+        if ( this._play ) {
 
-        if ( this._attractor ) {
+            var l = pointsWorm.length - 1;
 
-            var position = this._attractor.body.position;
-
-            startVector = new THREE.Vector3(
-                position.x,
-                position.y * 1.5,
-                50
-            );
+            return [
+                pointsWorm[l - 3],
+                pointsWorm[l - 2],
+                pointsWorm[l - 1],
+                pointsWorm[l]
+            ];
 
         } else {
 
-            startVector = new THREE.Vector3(
-                (random() * 2) - 1 * this._multiplier,
-                (random() * 2) - 1 * this._multiplier,
-                (random() * 2) - 1 * this._multiplier
-            );
+            var v3;
+
+            if ( this._attractor ) {
+
+                this._attractOrigin = this._attractor.body.origin;
+
+                v3 = new THREE.Vector3(
+                    this._attractOrigin.x,
+                    this._attractOrigin.y * 1.5,
+                    50
+                );
+
+            } else {
+
+                v3 = new THREE.Vector3(
+                    real(-this._multiplier, this._multiplier),
+                    real(-this._multiplier, this._multiplier),
+                    real(-this._multiplier, this._multiplier)
+                );
+
+            }
+
+            return [ v3, v3, v3, v3 ];
 
         }
-
-        return [
-            startVector,
-            startVector,
-            startVector,
-            startVector
-        ];
 
     }
 
@@ -274,8 +293,6 @@ class TetraWormParticle extends THREE.Mesh {
         });
 
         super( geometry, material );
-
-        this.castShadow = true;
 
     }
 

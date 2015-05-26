@@ -4,8 +4,9 @@ import CANNON from 'cannon';
 import THREE from 'three';
 import Glow from './Glow';
 
-var DateNow = Date.now;
+var now = Date.now;
 var cos = Math.cos;
+var random = Math.random;
 
 export default class Tetrahedron extends THREE.Mesh {
 
@@ -25,7 +26,7 @@ export default class Tetrahedron extends THREE.Mesh {
 
         super( geometry, material );
 
-        this.body = new Body( 70 );
+        this.body = new Body(new CANNON.Vec3(0, 70, 0));
 
         this.glow = new Glow({
 
@@ -36,36 +37,47 @@ export default class Tetrahedron extends THREE.Mesh {
 
         });
 
+        this._play = options.play || false;
+        this._previousNow = now();
+        this._time = 0;
+        this._timeDivider = 30;
+
         this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
+        this._mouse = new THREE.Vector2();
 
-        this.bindEvents();
-
-    }
-
-    bindEvents() {
-
-        window.addEventListener( 'mousemove', this.handleMouseMove.bind(this) );
-        window.addEventListener( 'touchmove', this.handleTouchMove.bind(this) );
+        this._bindEvents();
 
     }
 
-    handleMouseMove( event ) {
+    _bindEvents() {
 
-        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        window.addEventListener( 'mousemove', this._handleMouseMove.bind(this) );
+        window.addEventListener( 'touchmove', this._handleTouchMove.bind(this) );
 
     }
 
-    handleTouchMove( event ) {
+    _handleMouseMove( event ) {
+
+        this._mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this._mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    }
+
+    _handleTouchMove( event ) {
 
         if ( event.touches && event.touches.length > 0 ) {
-            this.handleMouseMove( event.touches[0] );
+            this._handleMouseMove( event.touches[0] );
         }
 
     }
 
     update( camera ) {
+
+        var t = now();
+        this._time += (t - this._previousNow) / this._timeDivider;
+        this._previousNow = t;
+
+        var c = this._time / this._timeDivider;
 
         var raycaster = this.raycaster;
         var body = this.body;
@@ -73,12 +85,20 @@ export default class Tetrahedron extends THREE.Mesh {
         body.update( this );
         this.glow.update( camera, body );
 
-        raycaster.setFromCamera( this.mouse, camera );
+        raycaster.setFromCamera( this._mouse, camera );
 
         if ( raycaster.intersectObject( this ).length ) {
 
             body.angularVelocity.set( 0, 5, 0 );
 
+        }
+
+        if ( (random() * 0.1) * c > 1 && this._play ) {
+
+            this._time %= this._timeDivider;
+            t = this._time / this._timeDivider;
+
+            body.angularVelocity.set( 0, 5, 0 );
         }
 
     }
@@ -87,13 +107,13 @@ export default class Tetrahedron extends THREE.Mesh {
 
 class Body extends CANNON.Body {
 
-    constructor( posY ) {
+    constructor( origin ) {
 
-        this.orgY = posY;
+        this.origin = origin;
 
         super({
             mass: 0.3,
-            position: new CANNON.Vec3( 0, this.orgY, 0 )
+            position: origin
         });
 
         this.angularDamping = 0.5;
@@ -102,9 +122,9 @@ class Body extends CANNON.Body {
 
     update( mesh ) {
 
-        var timer = DateNow() * 0.002;
+        var timer = now() * 0.002;
 
-        this.position.y = (cos( timer ) * 5) + this.orgY;
+        this.position.y = (cos( timer ) * 5) + this.origin.y;
 
         mesh.position.copy( this.position );
         mesh.quaternion.copy( this.quaternion );

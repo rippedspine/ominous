@@ -16,7 +16,7 @@ import { cosine } from '../Lib/interpolation';
 
 var cos = Math.cos;
 var sin = Math.sin;
-var DateNow = Date.now;
+var now = Date.now;
 
 export default class PerspectiveCamera extends THREE.PerspectiveCamera {
 
@@ -39,7 +39,7 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
             this._originY
         ];
 
-        this._previousNow = DateNow();
+        this._previousNow = now();
 
         this._time = 0;
         this._timeDivider = options.timeDivider || 30;
@@ -153,13 +153,13 @@ export default class PerspectiveCamera extends THREE.PerspectiveCamera {
 
     update() {
 
-        var timer = DateNow() * 0.0002;
+        var timer = now() * 0.0002;
 
         this.position.x = cos( timer ) * 100;
         this.position.y = this._getPositionY();
         this.position.z = sin( timer ) * 100;
 
-        var t = DateNow();
+        var t = now();
         this._time += (t - this._previousNow) / 30;
         this._previousNow = t;
 
